@@ -25,7 +25,7 @@ app.use(cors());
 app.use(morgan('short'));
 app.use(express.urlencoded({ extended: false }))
 
-app.use('/api/user', require("./router/user"));
+app.use('/api/user', require("./routers/user"));
 
 app.get('/', (req, res) => {
     res.send("Welcome to User")

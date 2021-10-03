@@ -1,23 +1,22 @@
 import React, { useState, Fragment } from "react";
 import { nanoid } from "nanoid";
 import "./App.css";
-import data from "./mock-data.json";
 import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditableRow from "./components/EditableRow";
+import SearchBar from "./components/Search";
+import Authen from "./components/Authen";
 
 const App = () => {
-  const [contacts, setContacts] = useState(data);
+  const [contacts, setContacts] = useState([]);
   const [addFormData, setAddFormData] = useState({
-    fullName: "",
-    address: "",
-    phoneNumber: "",
+    username: "",
+    birthday: "",
     email: "",
   });
 
   const [editFormData, setEditFormData] = useState({
-    fullName: "",
-    address: "",
-    phoneNumber: "",
+    username: "",
+    birthday: "",
     email: "",
   });
 
@@ -52,9 +51,8 @@ const App = () => {
 
     const newContact = {
       id: nanoid(),
-      fullName: addFormData.fullName,
-      address: addFormData.address,
-      phoneNumber: addFormData.phoneNumber,
+      username: addFormData.username,
+      birthday: addFormData.birthday,
       email: addFormData.email,
     };
 
@@ -67,9 +65,8 @@ const App = () => {
 
     const editedContact = {
       id: editContactId,
-      fullName: editFormData.fullName,
-      address: editFormData.address,
-      phoneNumber: editFormData.phoneNumber,
+      username: editFormData.username,
+      birthday: editFormData.birthday,
       email: editFormData.email,
     };
 
@@ -88,85 +85,68 @@ const App = () => {
     setEditContactId(contact.id);
 
     const formValues = {
-      fullName: contact.fullName,
-      address: contact.address,
-      phoneNumber: contact.phoneNumber,
+      username: contact.username,
+      birthday: contact.birthday,
       email: contact.email,
     };
 
     setEditFormData(formValues);
   };
 
-  const handleCancelClick = () => {
-    setEditContactId(null);
-  };
-
-  const handleDeleteClick = (contactId) => {
-    const newContacts = [...contacts];
-
-    const index = contacts.findIndex((contact) => contact.id === contactId);
-
-    newContacts.splice(index, 1);
-
-    setContacts(newContacts);
-  };
-
   return (
     <div className="app-container">
-      <form onSubmit={handleEditFormSubmit}>
-        <table>
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Address</th>
-              <th>Phone Number</th>
-              <th>Email</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map((contact) => (
-              <Fragment>
-                {editContactId === contact.id ? (
-                  <EditableRow
-                    editFormData={editFormData}
-                    handleEditFormChange={handleEditFormChange}
-                    handleCancelClick={handleCancelClick}
-                  />
-                ) : (
-                  <ReadOnlyRow
-                    contact={contact}
-                    handleEditClick={handleEditClick}
-                    handleDeleteClick={handleDeleteClick}
-                  />
-                )}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </form>
+      <Authen></Authen>
+      <SearchBar></SearchBar>
+      {contacts.length !== 0 ? (
+        <form onSubmit={handleEditFormSubmit}>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Birthday</th>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {contacts.map((contact) => (
+                <Fragment>
+                  {editContactId === contact.id ? (
+                    <EditableRow
+                      editFormData={editFormData}
+                      handleEditFormChange={handleEditFormChange}
+                    />
+                  ) : (
+                    <ReadOnlyRow
+                      contact={contact}
+                      handleEditClick={handleEditClick}
+                    />
+                  )}
+                </Fragment>
+              ))}
+            </tbody>
+            <button type="submit">UpdateAll</button>
+          </table>
+        </form>
+      ) : (
+        <div></div>
+      )}
 
-      <h2>Add a Contact</h2>
+      <h2>Add a User</h2>
       <form onSubmit={handleAddFormSubmit}>
         <input
           type="text"
-          name="fullName"
+          name="username"
           required="required"
           placeholder="Enter a name..."
           onChange={handleAddFormChange}
         />
         <input
-          type="text"
-          name="address"
+          type="date"
+          data-date-format="DD MMMM YYYY"
+          name="birthday"
           required="required"
-          placeholder="Enter an addres..."
-          onChange={handleAddFormChange}
-        />
-        <input
-          type="text"
-          name="phoneNumber"
-          required="required"
-          placeholder="Enter a phone number..."
+          placeholder="Enter a birthday..."
           onChange={handleAddFormChange}
         />
         <input

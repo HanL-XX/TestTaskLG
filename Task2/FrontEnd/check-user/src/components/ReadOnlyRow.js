@@ -1,11 +1,11 @@
 import React from "react";
+import Moment from 'moment';
 
-const ReadOnlyRow = ({ contact, handleEditClick, handleDeleteClick }) => {
+const ReadOnlyRow = ({ contact, handleEditClick}) => {
   return (
     <tr>
-      <td>{contact.fullName}</td>
-      <td>{contact.address}</td>
-      <td>{contact.phoneNumber}</td>
+      <td>{contact.username}</td>
+      <td>{Moment(contact.birthday).format("DD/MM/YYYY")}</td>
       <td>{contact.email}</td>
       <td>
         <button
@@ -13,9 +13,6 @@ const ReadOnlyRow = ({ contact, handleEditClick, handleDeleteClick }) => {
           onClick={(event) => handleEditClick(event, contact)}
         >
           Edit
-        </button>
-        <button type="button" onClick={() => handleDeleteClick(contact.id)}>
-          Delete
         </button>
       </td>
     </tr>

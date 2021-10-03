@@ -3,7 +3,6 @@ import React from "react";
 const EditableRow = ({
   editFormData,
   handleEditFormChange,
-  handleCancelClick,
 }) => {
   return (
     <tr>
@@ -12,28 +11,19 @@ const EditableRow = ({
           type="text"
           required="required"
           placeholder="Enter a name..."
-          name="fullName"
-          value={editFormData.fullName}
+          name="username"
+          value={editFormData.username}
           onChange={handleEditFormChange}
         ></input>
       </td>
       <td>
         <input
-          type="text"
+          type="date"
+          data-date-format="DD MMMM YYYY"
           required="required"
-          placeholder="Enter an address..."
-          name="address"
-          value={editFormData.address}
-          onChange={handleEditFormChange}
-        ></input>
-      </td>
-      <td>
-        <input
-          type="text"
-          required="required"
-          placeholder="Enter a phone number..."
-          name="phoneNumber"
-          value={editFormData.phoneNumber}
+          placeholder="Enter a birthday..."
+          name="birthday"
+          value={editFormData.birthday}
           onChange={handleEditFormChange}
         ></input>
       </td>
@@ -49,9 +39,6 @@ const EditableRow = ({
       </td>
       <td>
         <button type="submit">Save</button>
-        <button type="button" onClick={handleCancelClick}>
-          Cancel
-        </button>
       </td>
     </tr>
   );
