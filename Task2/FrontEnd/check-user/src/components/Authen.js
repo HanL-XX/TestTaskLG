@@ -1,14 +1,19 @@
 import React from "react";
 
-const Authen = () => (
-    <form action="/" method="get">
+const Authen = ({
+    auth,
+    handleAuth
+}) => (
+    <form>
+        <label>Authentication Code</label>
         <input
-            type="text"
-            id="header-search"
-            placeholder="Search user"
-            name="s" 
+            type="password"
+            id="authen-code"
+            placeholder="Code"
+            style={{width: "200px"}}
+            value={auth}
+            onChange={handleAuth}
         />
-        <button type="submit">Search</button>
     </form>
 );
 

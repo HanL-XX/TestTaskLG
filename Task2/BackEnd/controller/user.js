@@ -2,6 +2,7 @@ const StatusCode = require("../common/StatusCode.js");
 const User = require("../models/user.js");
 const { ObjectId } = require("mongodb");
 const validator = require("email-validator");
+const moment  = require("moment");
 
 //Tìm kiếm người dùng (tên hoặc email)
 const searchUser = async (req, res) => {
@@ -12,7 +13,16 @@ const searchUser = async (req, res) => {
   const { search } = req.query;
 
   if (!search) {
-    return res.status(StatusCode.PayloadIsInvalid).json({ msg: "Dont search" });
+    const outSearch = await User.find({})
+      .sort({ registration_data: -1 })
+      .catch((err) => {
+        return res
+          .status(StatusCode.PayloadIsInvalid)
+          .json({ msg: "Dont search" });
+      });
+    return res
+      .status(StatusCode.SuccessStatus)
+      .json({ msg: "Search all complete", outSearch });
   } else {
     const outSearch = await User.find({
       $or: [
@@ -44,24 +54,26 @@ const postUser = async (req, res) => {
   //IF USE PROMISEALL WILL FASTER
 
   for (let i of arrayUser) {
-    const { id, username, birthday, email } = i;
+    const { _id, username, birthday, email } = i;
+
+    const birthdayUTC = moment(birthday).format().toString();
     //Kiểm tra email
     if (!validator.validate(email)) {
-      log.push({ id, username, birthday, email });
+      log.push({ _id, username, birthday, email });
       continue;
     }
     //Kiểm tra tên EL
     if (!/^[a-z ,.'-]+$/i.test(username)) {
-      log.push({ id, username, birthday, email });
+      log.push({ _id, username, birthday, email });
       continue;
     }
-    //Kiểm tra ngày tháng năm sinh
-    if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(birthday)) {
-      log.push({ id, username, birthday, email });
+    //Kiểm tra ngày tháng năm sinh UTC
+    if (!/\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\d|3[0-1])T(?:[0-1]\d|2[0-3]):[0-5]\d:[0-5]\d(?:\.\d+|)(?:Z|(?:\+|\-)(?:\d{2}):?(?:\d{2}))/.test(birthdayUTC)) {
+      log.push({ _id, username, birthday, email });
       continue;
     }
 
-    if (id === undefined) {
+    if (_id === undefined) {
       //ADD USER
       await User.findOne({ email })
         .then(async (user) => {
@@ -69,18 +81,18 @@ const postUser = async (req, res) => {
             throw log;
           }
           const newUser = new User({
-            username,
-            birthday,
-            email,
+            username:username,
+            birthday: birthdayUTC,
+            email:email,
           });
           await newUser.save();
         })
         .catch((err) => {
-          log.push({ id, username, birthday, email });
+          log.push({ _id, username, birthday, email });
         });
     } else {
       //UPDATE USER
-      let Oid = ObjectId(id);
+      let Oid = ObjectId(_id);
       await User.findOne({ _id: Oid })
         .then(async (user) => {
           if (!user) {
@@ -92,13 +104,13 @@ const postUser = async (req, res) => {
               $set: {
                 username: username,
                 email: email,
-                birthday: birthday,
+                birthday: birthdayUTC,
               },
             }
           );
         })
         .catch((err) => {
-          log.push({ id, username, birthday, email });
+          log.push({ _id, username, birthday, email });
         });
     }
   }

@@ -1,4 +1,5 @@
 import React from "react";
+import moment from 'moment';
 
 const EditableRow = ({
   editFormData,
@@ -19,11 +20,11 @@ const EditableRow = ({
       <td>
         <input
           type="date"
-          data-date-format="DD MMMM YYYY"
+          //data-date-format="YYYY MMMM DD"
           required="required"
-          placeholder="Enter a birthday..."
+          //placeholder="Enter a birthday..."
           name="birthday"
-          value={editFormData.birthday}
+          value={moment.utc(editFormData.birthday).format("YYYY-MM-DD")}
           onChange={handleEditFormChange}
         ></input>
       </td>

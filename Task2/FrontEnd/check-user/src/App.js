@@ -1,20 +1,25 @@
 import React, { useState, Fragment } from "react";
-import { nanoid } from "nanoid";
 import "./App.css";
 import ReadOnlyRow from "./components/ReadOnlyRow";
 import EditableRow from "./components/EditableRow";
-import SearchBar from "./components/Search";
 import Authen from "./components/Authen";
+import SearchBar from "./components/SearchBar";
+import { fetchUser, changeUser } from "./api/user";
 
 const App = () => {
   const [contacts, setContacts] = useState([]);
   const [addFormData, setAddFormData] = useState({
+    _id: undefined,
     username: "",
     birthday: "",
     email: "",
   });
 
+  const [search, setSearch] = useState(null);
+  const [auth, setAuth] = useState(null);
+
   const [editFormData, setEditFormData] = useState({
+    _id: undefined,
     username: "",
     birthday: "",
     email: "",
@@ -46,25 +51,11 @@ const App = () => {
     setEditFormData(newFormData);
   };
 
-  const handleAddFormSubmit = (event) => {
-    event.preventDefault();
-
-    const newContact = {
-      id: nanoid(),
-      username: addFormData.username,
-      birthday: addFormData.birthday,
-      email: addFormData.email,
-    };
-
-    const newContacts = [...contacts, newContact];
-    setContacts(newContacts);
-  };
-
   const handleEditFormSubmit = (event) => {
     event.preventDefault();
 
     const editedContact = {
-      id: editContactId,
+      _id: editContactId,
       username: editFormData.username,
       birthday: editFormData.birthday,
       email: editFormData.email,
@@ -72,7 +63,7 @@ const App = () => {
 
     const newContacts = [...contacts];
 
-    const index = contacts.findIndex((contact) => contact.id === editContactId);
+    const index = contacts.findIndex((contact) => contact._id === editContactId);
 
     newContacts[index] = editedContact;
 
@@ -82,9 +73,10 @@ const App = () => {
 
   const handleEditClick = (event, contact) => {
     event.preventDefault();
-    setEditContactId(contact.id);
+    setEditContactId(contact._id);
 
     const formValues = {
+      _id: contact.id,
       username: contact.username,
       birthday: contact.birthday,
       email: contact.email,
@@ -93,10 +85,54 @@ const App = () => {
     setEditFormData(formValues);
   };
 
+  const handleAuth = (event) => {
+    event.preventDefault();
+    const fieldValue = event.target.value;
+
+    setAuth(fieldValue);
+  };
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+
+    const fieldValue = event.target.value;
+
+    setSearch(fieldValue);
+  };
+
+  const onSearch = async (event) => {
+    event.preventDefault();
+
+    await fetchUser(auth, search).then((user) => {
+      setContacts(user);
+    });
+  };
+
+  const updateUser = async (event) => {
+    event.preventDefault();
+
+    await changeUser(auth, contacts)
+    await fetchUser(auth, search).then((user) => {
+      setContacts(user);
+    });
+  };
+
+  const addUser = async (event) => {
+    event.preventDefault();
+    await changeUser(auth, [addFormData]).then(res=>{console.log(res)})
+    await fetchUser(auth, search).then((user) => {
+      setContacts(user);
+    });
+  }
+
   return (
     <div className="app-container">
-      <Authen></Authen>
-      <SearchBar></SearchBar>
+      <SearchBar
+        search={search}
+        handleSearch={handleSearch}
+        onSearch={onSearch}
+      ></SearchBar>
+      <Authen auth={auth} handleAuth={handleAuth}></Authen>
       {contacts.length !== 0 ? (
         <form onSubmit={handleEditFormSubmit}>
           <table>
@@ -111,7 +147,7 @@ const App = () => {
             <tbody>
               {contacts.map((contact) => (
                 <Fragment>
-                  {editContactId === contact.id ? (
+                  {editContactId === contact._id ? (
                     <EditableRow
                       editFormData={editFormData}
                       handleEditFormChange={handleEditFormChange}
@@ -125,15 +161,16 @@ const App = () => {
                 </Fragment>
               ))}
             </tbody>
-            <button type="submit">UpdateAll</button>
           </table>
         </form>
       ) : (
         <div></div>
       )}
-
+      <form onSubmit={updateUser}>
+        <button type="submit">UpdateAll</button>
+      </form>
       <h2>Add a User</h2>
-      <form onSubmit={handleAddFormSubmit}>
+      <form onSubmit={addUser}>
         <input
           type="text"
           name="username"
