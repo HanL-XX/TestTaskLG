@@ -80,6 +80,13 @@ It is recommended to use Nodejs 14. or later. The recommended IDE when using is 
 - All information stored in the .env file is displayed in the project for easy viewing.
 - If you search with empty, it will show a list of all users
 
+<!-- UTILITIES TASK 3 -->
+## Utilities task 3
+
+- I develop on ORGCHART. If you want to learn how to edit tree nodes go into the code
+- Due to some limitations of ORG I can't develop it too fully
+- Be careful with the edit function because sometimes it doesn't work
+
 <!-- CONTACT -->
 ## Contact me if any problems arise
 
